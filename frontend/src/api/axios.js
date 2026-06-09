@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:8000",
+  baseURL: "https://rentora-fg8s.onrender.com",
   headers: {
     "Content-Type": "application/json",
   },
