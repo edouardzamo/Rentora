@@ -33,6 +33,10 @@ app.add_middleware(
 def root():
     return {"message": "API is running"}
 
+@app.get("/health")
+def health():
+    return {"status": "healthy"}
+
 # Exception handlers
 app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(Exception, generic_exception_handler)
