@@ -2,9 +2,10 @@
 import { useEffect, useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getMessages, sendMessage, startConversation } from '../api/messageApi';
+import websocketService from '../services/websocket';
 
 const Messages = () => {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   
   // State
   const [conversations, setConversations] = useState([]);
@@ -24,11 +25,26 @@ const Messages = () => {
     loadConversations();
   }, []);
 
+  // Fetch messages when conversation changes
   useEffect(() => {
     if (selectedConversation) {
       fetchMessages(selectedConversation.id);
     }
   }, [selectedConversation]);
+
+  // WebSocket connection when conversation is selected
+  useEffect(() => {
+    if (selectedConversation && token) {
+      // Connect WebSocket for real-time messages
+      websocketService.connect(selectedConversation.id, token);
+      websocketService.onMessage(handleNewMessage);
+      
+      // Cleanup on unmount or conversation change
+      return () => {
+        websocketService.disconnect();
+      };
+    }
+  }, [selectedConversation, token]);
 
   useEffect(() => {
     scrollToBottom();
@@ -36,6 +52,22 @@ const Messages = () => {
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // Handle incoming WebSocket messages
+  const handleNewMessage = (message) => {
+    console.log('New message via WebSocket:', message);
+    // Add the new message to the messages list
+    setMessages(prev => [...prev, message]);
+    
+    // Update last message in conversation
+    const updatedConvo = {
+      ...selectedConversation,
+      last_message: message.content,
+      last_message_time: new Date().toISOString()
+    };
+    saveConversation(updatedConvo);
+    setSelectedConversation(updatedConvo);
   };
 
   // Load conversations from localStorage (temporary)
@@ -85,11 +117,21 @@ const Messages = () => {
     
     setSending(true);
     try {
+      // Send via REST API to save to database
       const response = await sendMessage(selectedConversation.id, newMessage);
       
       // Add new message to list
       const newMsg = response.data;
       setMessages(prev => [...prev, newMsg]);
+      
+      // Send via WebSocket for real-time delivery to other users
+      websocketService.sendMessage({
+        conversation_id: selectedConversation.id,
+        sender_id: user?.id,
+        content: newMessage,
+        created_at: new Date().toISOString()
+      });
+      
       setNewMessage('');
       
       // Update last message in conversation
@@ -139,6 +181,10 @@ const Messages = () => {
       
       // Fetch messages for the new conversation
       await fetchMessages(newConversation.id);
+      
+      // Connect WebSocket for the new conversation
+      websocketService.connect(newConversation.id, token);
+      websocketService.onMessage(handleNewMessage);
       
     } catch (error) {
       console.error('Error starting conversation:', error);
