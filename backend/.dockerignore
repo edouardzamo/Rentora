@@ -1,0 +1,9 @@
+
+__pycache__/
+# Ignore database files
+.git
+.env
+venv
+uploads
+# docker build -t rentora-backend .
+# docker run -d -p 8000:8000 --name rentora-backend rentora-backend

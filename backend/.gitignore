@@ -1,0 +1,11 @@
+
+.env
+
+__pycache__/
+
+# Ignore database files
+*.pyc
+
+venv/
+
+uploads/
