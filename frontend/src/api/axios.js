@@ -1,11 +1,9 @@
-// src/api/axios.js
+// frontend/src/api/axios.js
 import axios from "axios";
 
-
-const API_URL = import.meta.env.DEV ? "http://localhost:8000" : "https://rentora-fg8s.onrender.com";
-
+// Use the full Render URL
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: "https://rentora-fg8s.onrender.com",
   headers: {
     "Content-Type": "application/json",
   },
@@ -15,15 +13,13 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("access_token");
-    console.log("Token in interceptor:", token ? "Yes" : "No"); // Debug
+    console.log("Token in interceptor:", token ? "Yes" : "No");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 export default api;
