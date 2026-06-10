@@ -13,7 +13,6 @@ from backend.schemas.dashboard_schema import DashboardResponse
 
 
 router = APIRouter(
-    prefix="/dashboard",
     tags=["Dashboard"]
 )
 
