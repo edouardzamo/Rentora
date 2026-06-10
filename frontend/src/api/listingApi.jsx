@@ -70,5 +70,10 @@ export const rentListing = (id) => {
   return api.put(`/listings/${id}/rent`);
 };
 
+// src/api/listingApi.jsx - Add this function
+export const searchListings = (params) => {
+  return api.get("/listings/search", { params });
+};
+
 // If you need both uploadImages and uploadImage, add this at the bottom:
 // export const uploadImage = uploadImages;

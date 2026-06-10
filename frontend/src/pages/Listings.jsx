@@ -1,55 +1,56 @@
 // src/pages/Listings.jsx
-import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { getListings } from "../api/listingApi";
-import ListingCard from "../components/ListingCard";
-import FilterSidebar from "../components/FilterSidebar";
+import { useEffect, useState } from 'react';
+import { useSearchParams, Link } from 'react-router-dom';
+import { searchListings } from '../api/listingApi';
+import ListingCard from '../components/ListingCard';
+import FilterSidebar from '../components/FilterSidebar';
 
 const Listings = () => {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
+  // Load listings on mount and when URL params change
   useEffect(() => {
-    fetchListings();
+    const params = {};
+    for (const [key, value] of searchParams.entries()) {
+      params[key] = value;
+    }
+    fetchListings(params);
   }, [searchParams]);
 
-  const fetchListings = async () => {
+  const fetchListings = async (filters) => {
     setLoading(true);
-    setError(null);
     try {
-      const response = await getListings();
-      console.log("Listings response:", response.data); // Debug log
-      setListings(response.data);
+      const response = await searchListings(filters);
+      // Handle both array and paginated response
+      let listingsData = response.data;
+      if (response.data && response.data.listings) {
+        listingsData = response.data.listings;
+      }
+      setListings(listingsData);
     } catch (error) {
       console.error("Error fetching listings:", error);
-      setError("Failed to load listings. Please make sure the backend is running.");
     } finally {
       setLoading(false);
     }
   };
 
-  if (error) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          <p>{error}</p>
-          <button 
-            onClick={fetchListings}
-            className="mt-2 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const handleSearch = (filters) => {
+    // Update URL params
+    const params = {};
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value && value !== '') {
+        params[key] = value;
+      }
+    });
+    setSearchParams(params);
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">All Properties</h1>
+      <h1 className="text-3xl font-bold mb-6">Find Your Property</h1>
 
       {/* Mobile filter button */}
       <div className="md:hidden mb-4">
@@ -64,21 +65,22 @@ const Listings = () => {
       <div className="flex flex-col md:flex-row gap-8">
         {/* Filters Sidebar */}
         <div className={`${showFilters ? 'block' : 'hidden'} md:block md:w-80`}>
-          <FilterSidebar onSearch={() => {}} />
+          <FilterSidebar onSearch={handleSearch} />
         </div>
 
         {/* Listings Grid */}
         <div className="flex-1">
           {loading ? (
-            <div className="text-center py-12">
-              <div className="text-gray-500">Loading properties...</div>
-            </div>
+            <div className="text-center py-12">Loading...</div>
           ) : listings.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-gray-500">No properties found.</p>
-              <Link to="/" className="text-blue-600 hover:underline mt-2 inline-block">
-                Back to Home
-              </Link>
+              <button 
+                onClick={() => handleSearch({})}
+                className="mt-2 text-blue-600 hover:underline"
+              >
+                Clear filters
+              </button>
             </div>
           ) : (
             <>

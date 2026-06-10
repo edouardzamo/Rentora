@@ -1,8 +1,11 @@
 // src/api/axios.js
 import axios from "axios";
 
+
+const API_URL = import.meta.env.DEV ? "http://localhost:8000" : "https://rentora-fg8s.onrender.com";
+
 const api = axios.create({
-  baseURL: "https://rentora-fg8s.onrender.com",
+  baseURL: API_URL,
   headers: {
     "Content-Type": "application/json",
   },

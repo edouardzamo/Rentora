@@ -52,7 +52,7 @@ const FilterSidebar = ({ onSearch }) => {
           value={filters.location}
           onChange={handleChange}
           placeholder="Enter location"
-          className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-2 border rounded-lg"
         />
       </div>
 

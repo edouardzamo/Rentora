@@ -41,8 +41,6 @@ async def search_listing(
     bedrooms: Optional[int] = None,
     bathrooms: Optional[int] = None,
     property_type: Optional[str] = None,
-    page: int = Query(1, ge=1),
-    limit: int = Query(10, ge=1, le=100),
     db: Session = Depends(get_db)
 ):
     query = db.query(Listing).filter(Listing.is_available == True)
@@ -60,17 +58,8 @@ async def search_listing(
     if property_type is not None:
         query = query.filter(Listing.property_type == property_type)
     
-    offset = (page - 1) * limit
-    results = query.offset(offset).limit(limit).all()
-    total = query.count()
-
-    return {
-        "page": page,
-        "limit": limit,
-        "total": total,
-        "total_pages": (total + limit - 1) // limit,
-        "listings": results
-    }
+    results = query.all()
+    return results
 
 @router.post("/{listing_id}/upload-images")
 async def upload_multiple_images(
