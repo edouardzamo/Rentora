@@ -29,7 +29,7 @@ const AppRoutes = () => {
         
         {/* Tenant routes */}
         <Route path="favorites" element={
-          <ProtectedRoute allowedRoles={["tenant"]}>
+          <ProtectedRoute>
             <Favorites />
           </ProtectedRoute>
         } />

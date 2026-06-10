@@ -1,4 +1,3 @@
-// src/pages/Favorites.jsx
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getMyFavorites, removeFromFavorites } from '../api/FavoriteApi';
@@ -7,7 +6,6 @@ import ListingCard from '../components/ListingCard';
 const Favorites = () => {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [removingId, setRemovingId] = useState(null);
 
   useEffect(() => {
     fetchFavorites();
@@ -25,15 +23,11 @@ const Favorites = () => {
   };
 
   const handleRemove = async (listingId) => {
-    setRemovingId(listingId);
     try {
       await removeFromFavorites(listingId);
       setFavorites(favorites.filter(fav => fav.id !== listingId));
     } catch (error) {
       console.error('Error removing favorite:', error);
-      alert('Failed to remove from favorites');
-    } finally {
-      setRemovingId(null);
     }
   };
 
@@ -43,9 +37,8 @@ const Favorites = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-2">My Favorites</h1>
-      <p className="text-gray-600 mb-6">Properties you've saved for later</p>
-
+      <h1 className="text-2xl font-bold mb-6">My Favorites</h1>
+      
       {favorites.length === 0 ? (
         <div className="text-center py-12 bg-gray-50 rounded-lg">
           <div className="text-6xl mb-4">❤️</div>
@@ -62,10 +55,9 @@ const Favorites = () => {
               <ListingCard listing={listing} />
               <button
                 onClick={() => handleRemove(listing.id)}
-                disabled={removingId === listing.id}
-                className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition hover:bg-red-700"
+                className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition"
               >
-                {removingId === listing.id ? '...' : '❤️'}
+                ❌
               </button>
             </div>
           ))}
