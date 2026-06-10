@@ -315,15 +315,3 @@ async def set_cover_image(
 async def options_upload_image(listing_id: int):
     return {"message": "OK"}
 
-@router.get("/fix-owner-ids")
-async def fix_owner_ids(db: Session = Depends(get_db)):
-    # Update all listings to owner_id = 9 (your user ID)
-    db.query(Listing).update({Listing.owner_id: 9})
-    db.commit()
-    
-    # Return updated listings
-    listings = db.query(Listing).all()
-    return {
-        "message": "Updated all listings to owner_id = 9",
-        "listings": [{"id": l.id, "title": l.title, "owner_id": l.owner_id} for l in listings]
-    }

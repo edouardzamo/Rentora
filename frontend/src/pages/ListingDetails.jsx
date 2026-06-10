@@ -48,22 +48,26 @@ const ListingDetails = () => {
   };
 
   const handleFavorite = async () => {
-    if (!isAuthenticated) {
-      navigate('/login');
-      return;
-    }
-    try {
-      if (isFavorited) {
-        await removeFromFavorites(id);
-        setIsFavorited(false);
-      } else {
-        await addToFavorites(id);
-        setIsFavorited(true);
+      if (!isAuthenticated) {
+        navigate('/login');
+        return;
       }
-    } catch (error) {
-      console.error('Error toggling favorite:', error);
-    }
-  };
+      
+      try {
+        if (isFavorited) {
+          await removeFromFavorites(listing.id);
+          setIsFavorited(false);
+          alert('Removed from favorites');
+        } else {
+          await addToFavorites(listing.id);
+          setIsFavorited(true);
+          alert('Added to favorites');
+        }
+      } catch (error) {
+        console.error('Error toggling favorite:', error);
+        alert('Failed to update favorites');
+      }
+    };
 
   const handleContactOwner = () => {
     if (!isAuthenticated) {
@@ -74,21 +78,29 @@ const ListingDetails = () => {
   };
 
   const handleSendMessage = async () => {
-    if (!message.trim()) return;
-    setSending(true);
-    try {
-      await startConversation(id, message);
-      alert('Message sent to owner!');
-      setMessage('');
-      setShowMessageForm(false);
-      navigate('/messages');
-    } catch (error) {
-      console.error('Error sending message:', error);
-      alert('Failed to send message. Please try again.');
-    } finally {
-      setSending(false);
-    }
-  };
+      if (!message.trim()) return;
+      setSending(true);
+      
+      console.log("Sending message for listing ID:", id);
+      console.log("Message content:", message);
+      console.log("Auth token exists:", !!localStorage.getItem("access_token"));
+      
+      try {
+        const response = await startConversation(id, message);
+        console.log("Message sent successfully:", response.data);
+        alert('Message sent to owner!');
+        setMessage('');
+        setShowMessageForm(false);
+        navigate('/messages');
+      } catch (error) {
+        console.error("Error sending message:", error);
+        console.error("Error response:", error.response);
+        console.error("Error message:", error.message);
+        alert(`Failed to send message: ${error.response?.data?.detail || error.message}`);
+      } finally {
+        setSending(false);
+      }
+    };
 
   if (loading) {
     return (

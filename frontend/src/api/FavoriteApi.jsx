@@ -1,4 +1,4 @@
-// src/api/FavoriteApi.jsx
+// frontend/src/api/FavoriteApi.jsx
 import api from "./axios";
 
 // Add to favorites
@@ -7,8 +7,8 @@ export const addToFavorites = (listingId) => {
 };
 
 // Remove from favorites
-export const removeFromFavorites = (favoriteId) => {
-  return api.delete(`/favorites/${favoriteId}`);
+export const removeFromFavorites = (listingId) => {
+  return api.delete(`/favorites/remove/${listingId}`);
 };
 
 // Get my favorites
@@ -20,6 +20,3 @@ export const getMyFavorites = () => {
 export const checkFavoriteStatus = (listingId) => {
   return api.get(`/favorites/check/${listingId}`);
 };
-
-// Alias for addToFavorites (for backward compatibility)
-export const addFavorite = addToFavorites;
